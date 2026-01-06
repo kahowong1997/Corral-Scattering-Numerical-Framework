@@ -138,9 +138,9 @@ def Dressed_GF(kx, params):
     return G_dressed
 
 @numba.njit(cache=True)
-def Effective_1D_Hamiltonian(kx, params):
+def Topo_Ham_1D(kx, params):
     """
-    Constructs the Effective Hamiltonian from the dressed Green's Function.
+    Constructs the 1D Effective Topological Hamiltonian from the dressed Green's Function.
     
     The inversion is forced to be C-contiguous to ensure the '@' operator 
     operates at peak performance within the Numba JIT environment.
@@ -150,7 +150,7 @@ def Effective_1D_Hamiltonian(kx, params):
         params (NamedTuple): Physical parameters of the system.
 
     Returns:
-        np.ndarray: The 4x4 Nambu-space Topological Hamiltonian matrix for a dressed MSH chain.
+        np.ndarray: The 4x4 Nambu-space Topological Hamiltonian matrix for a renormalized MSH chain.
     """
     # 1. Obtain the renormalized propagator
     G_dressed = Dressed_GF(kx, params)

@@ -33,10 +33,10 @@ def numerical_GF(kx, Y, params, steps=1000):
         g_integrand[i] = G0 * phase
       
     G_integrated = np.zeros((4, 4), dtype=np.complex128)
-      for row in range(4):
-          for col in range(4):
-              G_integrated[row, col] = simpson(g_integrand[:, row, col], ky_vec)
-            
+    for row in range(4):
+        for col in range(4):
+            G_integrated[row, col] = simpson(g_integrand[:, row, col], ky_vec)
+                
     normalization = np.sqrt(3) / (4 * np.pi)
     return G_integrated * normalization
 

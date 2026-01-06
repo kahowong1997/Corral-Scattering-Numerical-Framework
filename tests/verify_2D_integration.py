@@ -1,50 +1,47 @@
 import numpy as np
 from MSH_2D_Library import build_GF_library, apply_GF_library_vectorized
-from MSH_Quasi_1D import GF_hybrid  # Your ANALYTICAL, verified function
+from MSH_Quasi_1D import GF_hybrid
 from collections import namedtuple
 
 Params = namedtuple('Params', ['t', 'mu', 'alpha', 'Delta'])
 
-def test_2D_integration_consistency():
-    params = Params(t=1.0, mu=-3.5, alpha=0.2, Delta=0.3)
-    
-    # 1. Setup spatial coordinates for testing
-    X_test = -6.5
-    Y_test = 7*np.sqrt(3)/2
-    
-    # 2. Method A: 2D Library Vectorized Integration (Analytical Summation)
-    steps = 1024
-    print(f"Building Library and Computing 2D G(X={X_test}, Y={Y_test})...")
+def test_2D_vectorized_integration():
+    params = Params(t=1.0, mu=-3.42, alpha=0.36, Delta=0.17)
+    steps = 512
     library_data = build_GF_library(params, steps=steps)
-    G_2D_library = apply_GF_library_vectorized(np.array([X_test]), np.array([Y_test]), library_data)[0]
     
-    # 3. Method B: Numerical Integration of the Analytical GF_hybrid
-    # We integrate: (1/2pi) * \int GF_hybrid(kx) * exp(i * kx * X) dkx
+    # 1. Define multiple displacements (Array Input)
+    # Testing different sectors: positive Y, negative Y, and zero displacement
+    X_arr = np.array([0.0, 3.5, -6.0])
+    Y_arr = np.array([0.0, 7*np.sqrt(3)/2, -4*np.sqrt(3)/2])
+    
+    # 2. Run Vectorized Library Call
+    print(f"Running vectorized 2D library for {len(X_arr)} points...")
+    G_vectorized = apply_GF_library_vectorized(X_arr, Y_arr, library_data)
+    
+    # 3. Verify each point against the Analytical Integral
     k_vec = np.linspace(0, 2*np.pi, steps)
     dk = k_vec[1] - k_vec[0]
-    G_sum = np.zeros((4, 4), dtype=np.complex128)
     
-    print("Integrating analytical GF_hybrid over kx...")
-    for i in range(steps):
-        kx = k_vec[i]
-        weight = 0.5 if (i == 0 or i == steps - 1) else 1.0
+    for n in range(len(X_arr)):
+        X, Y = X_arr[n], Y_arr[n]
+        G_ref_sum = np.zeros((4, 4), dtype=np.complex128)
         
-        # Call your verified analytical 1D function
-        G_kx = GF_hybrid(kx, Y_test, params)
+        for i in range(steps):
+            kx = k_vec[i]
+            weight = 0.5 if (i == 0 or i == steps - 1) else 1.0
+            G_kx = GF_hybrid(kx, Y, params)
+            G_ref_sum += weight * G_kx * np.exp(1j * kx * X)
+            
+        G_reference = G_ref_sum * (dk / (2 * np.pi))
         
-        # Apply the longitudinal phase shift
-        G_sum += weight * G_kx * np.exp(1j * kx * X_test)
+        # Check point-wise difference
+        diff = np.max(np.abs(G_vectorized[n] - G_reference))
+        print(f"Point {n} (X={X:.2f}, Y={Y:.2f}) Error: {diff:.2e}")
         
-    G_reference = G_sum * (dk / (2 * np.pi))
-    
-    # 4. Consistency Check
-    diff = np.max(np.abs(G_2D_library - G_reference))
-    print(f"\n2D Integration Consistency Check:")
-    print(f"Max Absolute Difference: {diff:.2e}")
-    
-    # Accuracy should be limited only by the integration step size (approx 10^-12)
-    assert diff < 1e-10, f"2D Integration logic inconsistent with 1D analytical! Error: {diff}"
-    print("✅ 2D Integration Verified: Vectorized residues match Integrated Analytical GF.")
+        assert diff < 1e-10, f"Vectorization error at point {n}!"
+
+    print("\n✅ 2D Vectorization Verified: Array inputs match independent integrals.")
 
 if __name__ == "__main__":
-    test_2D_integration_consistency()
+    test_2D_vectorized_integration()

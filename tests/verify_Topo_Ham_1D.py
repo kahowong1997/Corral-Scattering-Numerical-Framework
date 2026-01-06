@@ -43,9 +43,9 @@ def test_1D_matrix():
     max_err = np.max(diff) 
     
     # Check if the error is consistent with the 1/V scaling
-    print(f"Observed Error: {max_err:.2e} | Expected scaling (1/V): {1/V_val:.2e}")
+    print(f"Observed Error: {max_err:.2e} | Expected scaling (1/V): {1/V:.2e}")
     
-    assert max_diff < (10/V_val), f"Error exceeds 1/V scaling! Diff: {max_diff}"
+    assert max_diff < (10/V), f"Error exceeds 1/V scaling! Diff: {max_err}"
     print("✅ Theoretical Limit: PASSED (Error consistent with 1/V)")
 
 if __name__ == "__main__":

@@ -1,13 +1,7 @@
-import sys
-import os
 import numpy as np
 import numba
 from scipy.integrate import simpson
 from collections import namedtuple
-
-# Adds the parent directory to sys.path so Python can find your modules
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from MSH_Quasi_1D import GF_hybrid
 
 pauli=np.array([[[1, 0], [0, 1]],

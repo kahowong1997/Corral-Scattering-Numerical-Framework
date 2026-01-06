@@ -2,6 +2,15 @@ import numpy as np
 from MSH_Quasi_1D import Topo_Ham_1D
 from collections import namedtuple
 
+pauli=np.array([[[1, 0], [0, 1]],
+                [[0, 1], [1, 0]],
+                [[0, -1j], [1j, 0]],
+                [[1, 0], [0, -1]]],dtype=np.complex128)
+
+txs0 = np.kron(pauli[1], pauli[0])
+tzs0 = np.kron(pauli[3], pauli[0])
+tzsy = np.kron(pauli[3], pauli[2])
+
 Params = namedtuple('Params', ['t', 'mu', 'alpha', 'Delta', 'W_c', 'V', 'J'])
 
 def pure_1D_hamiltonian(kx, t, mu, alpha, Delta, J):

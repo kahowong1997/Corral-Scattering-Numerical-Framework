@@ -1,40 +1,52 @@
 import sys
 import os
+import numpy as np
+import numba
+from scipy.integrate import simpson
 
 # Adds the parent directory to sys.path so Python can find your modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import numpy as np
-from scipy.integrate import simpson
 from MSH_Quasi_1D import GF_hybrid
 
+pauli=np.array([[[1, 0], [0, 1]],
+                [[0, 1], [1, 0]],
+                [[0, -1j], [1j, 0]],
+                [[1, 0], [0, -1]]],dtype=np.complex128)
+
+txs0 = np.kron(pauli[1], pauli[0])
+tzs0 = np.kron(pauli[3], pauli[0])
+tzsx = np.kron(pauli[3], pauli[1])
+tzsy = np.kron(pauli[3], pauli[2])
+
 @numba.njit
-def Bulk_Hamiltonian_bare(k,params):
+def Bulk_Hamiltonian_bare(k, params):
     """(kx,ky)-space Hamiltonian with spinor (up_particle, down_particle, down_hole, up_hole)"""
-    
-    H = np.zeros((4,4),dtype=np.complex128)
-    
+    H = np.zeros((4, 4), dtype=np.complex128)
     kx, ky = k
-    t,mu,alpha,Delta = params.t, params.mu, params.alpha, params.Delta
+    t, mu, alpha, Delta = params.t, params.mu, params.alpha, params.Delta
     
-    xi_k = -2*t*np.cos(kx)-4*t*np.cos(kx/2)*np.cos(np.sqrt(3)*ky/2)-mu
-    onsite=xi_k*tzs0 + Delta*txs0 
+    xi_k = -2*t*np.cos(kx) - 4*t*np.cos(kx/2)*np.cos(np.sqrt(3)*ky/2) - mu
+    onsite = xi_k * tzs0 + Delta * txs0 
     
-    alpha_x = 2*alpha*(np.sin(kx)+np.cos(np.sqrt(3)*ky/2)*np.sin(kx/2))
+    alpha_x = 2*alpha*(np.sin(kx) + np.cos(np.sqrt(3)*ky/2)*np.sin(kx/2))
     alpha_y = 2*alpha*np.sqrt(3)*np.sin(np.sqrt(3)*ky/2)*np.cos(kx/2)
     
-    H += onsite + alpha_x*tzsy - alpha_y*tzsx
+    H += onsite + alpha_x * tzsy - alpha_y * tzsx
     return H
-      
+
 def numerical_GF(kx, Y, params, steps=1000):
     """Brute-force numerical integration of the bare Green's Function."""
-    ky_vec = np.linspace(-2*np.pi/np.sqrt(3), 2*np.pi/np.sqrt(3), steps)
-    g_vals = []
+    ky_limit = 2 * np.pi / np.sqrt(3)
+    ky_vec = np.linspace(-ky_limit, ky_limit, steps)
     
-    for ky in ky_vec:
+    # Pre-allocate integrand array
+    g_integrand = np.zeros((steps, 4, 4), dtype=np.complex128)
+    
+    for i, ky in enumerate(ky_vec):
         k = np.array([kx, ky], dtype=np.float64)
         H0 = Bulk_Hamiltonian_bare(k, params)
-        G0 = -np.linalg.inv(H0) # invertible for superconductor with hard s-wave gap
+        G0 = -np.linalg.inv(H0) 
         phase = np.exp(1j * ky * Y)
         g_integrand[i] = G0 * phase
       
@@ -55,20 +67,19 @@ class MockParams:
       
 def test_hybrid_kernel_consistency():
     params = MockParams()
-    kx_test = 1+2j # kx is real, but equation is accurate for complex kx
-    Y_test = 3*np.sqrt(3)  # Test at a non-zero displacement
+    kx_test = 1.0 # Standard test with real kx
+    Y_test = 3 * np.sqrt(3) 
     
-    print(f"Verifying GF_hybrid for kx={kx}, Y={Y}...")
+    print(f"Verifying GF_hybrid for kx={kx_test}, Y={Y_test}...")
 
     # This uses the Residue Theorem internally
-    G_analytical = GF_hybrid(kx, Y, params)
+    G_analytical = GF_hybrid(kx_test, Y_test, params)
 
     # This uses the Bulk_Hamiltonian_bare and inv() 
-    G_numerical = numerical_GF(kx, Y, params, steps=10000)
+    G_numerical = numerical_GF(kx_test, Y_test, params, steps=10000)
 
     # ERROR ANALYSIS
     max_err = np.max(np.abs(G_analytical - G_numerical))
-    
     print(f"Max Absolute Error: {max_err:.2e}")
     
     # Assert that the analytical engine is exact to within a high tolerance

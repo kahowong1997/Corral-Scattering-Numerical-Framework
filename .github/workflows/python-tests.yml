@@ -20,3 +20,6 @@ jobs:
     - name: Run Quasi-1D Validation
       run: |
         python -m tests.verify_Topo_Ham_1D
+    - name: Run 2D Integration Validation
+      run: |
+        python -m tests.verify_2D_integration

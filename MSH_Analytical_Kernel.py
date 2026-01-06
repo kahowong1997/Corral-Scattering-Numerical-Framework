@@ -1,11 +1,15 @@
 """
-MSH Green's Function Engine: Analytical Pole-Solving
+MSH Analytical Kernel: Residue Theorem & Pole-Solving Engine
 Author: Ka Ho Wong
 Date: Jan 2026
 
-This module provides a high-performance framework for computing the 
-Green's Function G(kx, Y) of Magnet-Superconductor Hybrid (MSH) 
-systems using an analytical residue theorem approach. 
+This module provides the core high-performance analytical framework for Magnet-Superconductor 
+Hybrid (MSH) systems. It serves as a foundational kernel for computing characteristic 
+polynomials, complex poles, and residues in the chiral (BDI) basis. 
+
+The solvers implemented here are decoupled from specific geometries (Quasi-1D or 2D), 
+allowing for efficient integration into both mixed-representation propagators and 
+large-scale real-space Green's function libraries.
 """
 
 import numba

@@ -54,3 +54,70 @@ def GF_hybrid(kx, Y, params):
     U = (1.0/np.sqrt(2.0)) * (np.eye(4, dtype=np.complex128) + 1j * txs0)
     U_adj = np.ascontiguousarray(U.conj().T)
     G_mid = np.ascontiguousarray(U @ G_block)
+    G = G_mid @ U_adj 
+
+    if Y < 0:
+        G = G.conj().T
+    
+    return G
+
+@numba.njit(cache=True)
+def Dressed_GF(kx, params):
+    """
+    Computes the renormalized Green's Function at the corral center (y=0).
+    """
+    W_c, V = params.W_c, params.V
+
+    # 1. Construct 8x8 Corral Propagator
+    G_local = GF_hybrid(kx, 0, params)
+    G_scat_down = GF_hybrid(kx, W_c, params)
+    G_scat_up = GF_hybrid(kx, -W_c, params)
+    
+    G_corral = np.zeros((8,8), dtype=np.complex128)
+    G_corral[0:4,0:4] = G_local
+    G_corral[0:4,4:] = G_scat_up
+    G_corral[4:,0:4] = G_scat_down
+    G_corral[4:,4:] = G_local
+
+    # 2. Define Scattering Potential H_V
+    H_V = np.zeros((8,8), dtype=np.complex128)
+    H_V[:4,:4] = -V * tzs0
+    H_V[4:,4:] = -V * tzs0
+
+    # 3. T-Matrix Calculation with Stability Switch
+    if V <= 10.0:
+        inv_part = np.ascontiguousarray(np.linalg.inv(np.eye(8, dtype=np.complex128) - G_corral @ H_V))
+        T = H_V @ inv_part
+    else:
+        H_V_inv = np.zeros((8,8), dtype=np.complex128)
+        H_V_inv[:4,:4] = -(1.0/V) * tzs0
+        H_V_inv[4:,4:] = -(1.0/V) * tzs0
+        T = np.ascontiguousarray(np.linalg.inv(H_V_inv - G_corral))
+  
+    # 4. Dyson Equation for the Center Point
+    G_down = GF_hybrid(kx, W_c/2.0, params)
+    G_up = GF_hybrid(kx, -W_c/2.0, params)
+
+    T00, T01, T10, T11 = T[:4, :4], T[:4, 4:], T[4:, :4], T[4:, 4:]
+    G_dressed = G_local + G_down @ T00 @ G_up + G_down @ T01 @ G_down + \
+                G_up @ T10 @ G_up + G_up @ T11 @ G_down
+    
+    return G_dressed
+
+@numba.njit(cache=True)
+def Topo_Ham_1D(kx, params):
+    """
+    Constructs the 1D Effective Topological Hamiltonian.
+    """
+    G_dressed = Dressed_GF(kx, params)
+    G_inv = np.ascontiguousarray(np.linalg.inv(G_dressed))
+    
+    t0sz = np.array([
+        [1.0,  0.0,  0.0,  0.0],
+        [0.0, -1.0,  0.0,  0.0],
+        [0.0,  0.0,  1.0,  0.0],
+        [0.0,  0.0,  0.0, -1.0]
+    ], dtype=np.complex128)
+    
+    H_mag = -G_inv + params.J * t0sz
+    return H_mag

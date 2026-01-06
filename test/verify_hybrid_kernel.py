@@ -1,3 +1,9 @@
+import sys
+import os
+
+# Adds the parent directory to sys.path so Python can find your modules
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import numpy as np
 from scipy.integrate import simpson
 from MSH_Quasi_1D import GF_hybrid

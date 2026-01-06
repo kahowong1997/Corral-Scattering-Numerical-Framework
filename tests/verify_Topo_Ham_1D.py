@@ -30,7 +30,7 @@ def pure_1D_hamiltonian(kx, t, mu, alpha, Delta, J):
 def test_1D_matrix():
     params = Params(t=1.0, mu=-3.5, alpha=0.2, Delta=0.3, W_c=np.sqrt(3), V=1e6, J=0.5)
     
-    kx = 1.347 
+    kx_test = 1.347 
     V_values = [1e6, 1e9, 1e12]
   
     for V in V_values:

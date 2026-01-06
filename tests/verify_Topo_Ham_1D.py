@@ -46,5 +46,7 @@ def test_1D_matrix():
     print(f"Observed Error: {max_err:.2e} | Expected scaling (1/V): {1/V_val:.2e}")
     
     assert max_diff < (10/V_val), f"Error exceeds 1/V scaling! Diff: {max_diff}"
-    print("✅ Theoretical Limit: PASSED (Error consistent with 1/V)")if __name__ == "__main__":
+    print("✅ Theoretical Limit: PASSED (Error consistent with 1/V)")
+
+if __name__ == "__main__":
     test_1D_matrix()

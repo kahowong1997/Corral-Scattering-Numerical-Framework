@@ -135,7 +135,7 @@ def solve_poles(c4, c3, c2, c1, c0):
     return in_poles
 
 @numba.njit(cache=True)
-def GF_general_numba(kx, Y, params):
+def GF_hybrid(kx, Y, params):
 	"""
     Constructs the hybrid Green's Function in (kx, Y) via the Cauchy Residue Theorem.
     

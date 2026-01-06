@@ -59,7 +59,7 @@ def numerical_GF(kx, Y, params, steps=1000):
     normalization = np.sqrt(3) / (4 * np.pi)
     return G_integrated * normalization
 
-params = namedtuple('Params', ['t', 'mu', 'alpha', 'Delta'])
+Params = namedtuple('Params', ['t', 'mu', 'alpha', 'Delta'])
 
 def test_hybrid_kernel_consistency():
     params = Params(t=1.0, mu=-3.5, alpha=0.21, Delta=0.36)

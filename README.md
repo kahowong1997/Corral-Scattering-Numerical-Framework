@@ -4,7 +4,28 @@ Numerical framework for computing Green's Functions under renormalization from s
 # Project Overview
 This framework provides a suite of high-performance tools designed to obtain the topological Hamiltonian for MSH systems. The core of the project focuses on the Renormalization of the zero energy Green's Functions due to corral scattering potentials, allowing for the precise identification of topological phases and Majorana signatures in real space.
 
-The framework is built on analytical foundations, using Cauchy's residue theorem to bypass the computational bottlenecks of standard numerical integration.
+The framework is built on analytical foundations, using Cauchy's residue theorem to bypass the computational bottlenecks of standard numerical integration. The core of this framework is its ability to analytically solve for the hybrid Green's function $G(k_x, Y)$ for Quasi-1D system with horizontal corral and efficiently compute $G(X,Y)$ for 2D system in real space with arbitrary corral, allowing the definition of an effective topological Hamiltonian for a MSH chain with magnetic adatoms deposited on a superconducting substrate renormalized by the presence of quantum corral.
+
+## Theoretical Foundation: The Rashba Superconducting Substrate
+
+The framework is optimized for a Rashba superconductor on a triangular lattice. The base Hamiltonian is defined in the Nambu basis $\Psi_{\mathbf{k}} = (c_{\mathbf{k}\uparrow}, c_{\mathbf{k}\downarrow}, c_{-\mathbf{k}\downarrow}^\dagger, -c_{-\mathbf{k}\uparrow}^\dagger)^T$:
+
+$$H_0(\mathbf{k}) = \xi_{\mathbf{k}}\tau_z\sigma_0 + \tau_{z}(\vec{\alpha}(\mathbf{k})\times\vec{\sigma})^{z}+ \Delta\tau_x\sigma_0$$
+
+Where:
+* **Kinetic Term:** $\xi_{\mathbf{k}}=-2t\cos{k_x}-4t\cos{\frac{k_x}{2}}\cos{\frac{\sqrt{3}}{2}k_y}$ accounts for the tight-binding hopping on the triangular lattice.
+* **Rashba SOC:** The spin-orbit coupling induced by the substrate is defined by the vector field $\vec{\alpha}(\mathbf{k}) = (\alpha^x_{\mathbf{k}}, \alpha^y_{\mathbf{k}})$, where:
+  - $$\alpha^x_{\mathbf{k}} = 2\alpha \left( \sin k_x + \sin \frac{k_x}{2} \cos \frac{\sqrt{3} k_y}{2} \right)$$
+  - $$\alpha^y_{\mathbf{k}} = 2\sqrt{3}\alpha \cos \frac{k_x}{2} \sin \frac{\sqrt{3} k_y}{2}$$
+
+* **Superconducting Gap:** $\Delta$ is the $s$-wave superconducting order parameter.
+
+### **Renormalization & Exchange Coupling**
+The framework follows a two-stage process to arrive at the final topological state:
+1. **Dressing the Substrate:** The bare Green's function of the superconductor is renormalized by the corral scattering potential ($V$) via the T-matrix formalism. This creates a "Dressed" propagator $G_{\text{dressed}}$ that accounts for the corral geometry.
+2. **Ferromagnetic Adatoms ($J$):** The magnetic exchange coupling is then incorporated into the inverse of the dressed propagator. This represents the magnetic moments interacting with a pre-renormalized superconducting background, leading to an effective topological Hamiltonian:
+
+$$H_{\text{eff}}(k_x) = -[G_{\text{dressed}}(k_x,\omega=0)]^{-1} + J\tau_0\sigma_z$$
 
 # Framework Modules
 

@@ -10,12 +10,6 @@ Hybrid (MSH) systems.
 import numba
 import numpy as np
 
-# Global Pauli matrices defined for Nambu space (4x4)
-tzs0 = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, -1, 0], [0, 0, 0, -1]], dtype=np.complex128)
-txs0 = np.array([[0, 0, 1, 0], [0, 0, 0, 1], [1, 0, 0, 0], [0, 1, 0, 0]], dtype=np.complex128)
-tzsx = np.array([[0, 1, 0, 0], [1, 0, 0, 0], [0, -1, 0, 0], [-1, 0, 0, 0]], dtype=np.complex128)
-tzsy = np.array([[0, -1j, 0, 0], [1j, 0, 0, 0], [0, 1j, 0, 0], [0, -1j, 0, 0]], dtype=np.complex128)
-
 @numba.njit(cache=True)
 def coefficients(kx, t, mu, alpha, Delta):
     """

@@ -11,7 +11,7 @@ applies a T-matrix scattering formalism to compute renormalized topological band
 import numba
 import numpy as np
 from MSH_Analytical_Kernel import (
-    coefficients, denominator, get_adjugate, solve_poles, txs0, tzs0
+    coefficients, denominator, get_adjugate, solve_poles
 )
 
 txs0 = np.array([[0,0,1,0],[0,0,0,1],[1,0,0,0],[0,1,0,0]], dtype=np.complex128)

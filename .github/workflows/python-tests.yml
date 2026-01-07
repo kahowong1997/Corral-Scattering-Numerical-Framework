@@ -23,3 +23,6 @@ jobs:
     - name: Run 2D Integration Validation
       run: |
         python -m tests.verify_2D_integration
+    - name: Run Sorting Algorithm Validation
+      run: |
+        python -m tests.verify_sorting_algorithm

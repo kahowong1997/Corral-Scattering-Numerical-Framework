@@ -1,3 +1,10 @@
+import numpy as np
+import time
+from collections import namedtuple
+from MSH_2D_Library import build_GF_library, build_GF_matrix_final, apply_GF_library_vectorized
+
+Params = namedtuple('Params', ['t', 'mu', 'alpha', 'Delta'])
+
 def test_2D_performance_benchmark():
     params = Params(t=1.0, mu=-3.5, alpha=0.2, Delta=0.3)
     library_data = build_GF_library(params, steps=512)
@@ -53,3 +60,6 @@ def test_2D_performance_benchmark():
     print(f"Speedup: {speedup:.2f}x | Error: {max_diff:.2e}")
     
     assert max_diff < 1e-14
+
+if __name__ == "__main__":
+    test_2D_performance_benchmark()

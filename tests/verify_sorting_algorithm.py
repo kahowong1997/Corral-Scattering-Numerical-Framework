@@ -72,7 +72,7 @@ def run_fair_benchmark():
     speedup = t_brute / t_opt if t_opt > 0 else 0
     
     print("\n" + "="*45)
-    print(f"FAIR BENCHMARK RESULTS (N={N_sites}, Steps={steps})")
+    print(f"BENCHMARK RESULTS (N={N_sites}, Steps={steps})")
     print("="*45)
     print(f"Unique Vectors:          {unique_vectors}")
     print(f"Redundant Vectors saved: {N_sites**2 - unique_vectors}")

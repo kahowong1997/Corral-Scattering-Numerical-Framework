@@ -10,7 +10,7 @@ applies a T-matrix scattering formalism to compute renormalized topological band
 
 import numba
 import numpy as np
-from MSH_Analytical_Kernel import (
+from .MSH_Analytical_Kernel import (
     coefficients, denominator, get_adjugate, solve_poles
 )
 

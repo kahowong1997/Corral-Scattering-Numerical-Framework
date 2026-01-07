@@ -1,6 +1,6 @@
 import numpy as np
 from collections import namedtuple
-from MSH_2D_Library import (
+from corral_framework import (
     build_GF_library, build_GF_matrix_final, build_corral_basis, build_T_matrix
     )
 

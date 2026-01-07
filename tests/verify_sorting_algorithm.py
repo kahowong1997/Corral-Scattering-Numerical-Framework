@@ -1,7 +1,7 @@
 import numpy as np
 import time
 from collections import namedtuple
-from MSH_2D_Library import build_GF_library, build_GF_matrix_final, apply_GF_library_vectorized
+from corral_framework.MSH_2D_Library import build_GF_library, build_GF_matrix_final, apply_GF_library_vectorized
 
 Params = namedtuple('Params', ['t', 'mu', 'alpha', 'Delta'])
 

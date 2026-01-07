@@ -2,9 +2,9 @@
 Numerical framework for computing Green's Functions under renormalization from scattering potentials. Optimized for Magnet-Superconductor Hybrid (MSH) systems using Python (Numba).
 
 # Project Overview
-This framework provides a suite of high-performance tools designed to obtain the topological Hamiltonian for MSH systems. The core of the project focuses on the Renormalization of the zero energy Green's Functions due to corral scattering potentials, allowing for the precise identification of topological phases and Majorana signatures in real space.
+This framework provides a suite of high-performance tools designed to obtain the topological Hamiltonian for MSH systems. The core of the project focuses on the **Renormalization of the zero energy Green's Functions** due to corral scattering potentials, allowing for the precise identification of topological phases and Majorana signatures in real-space.
 
-The framework is built on analytical foundations, using Cauchy's residue theorem to bypass the computational bottlenecks of standard numerical integration. The core of this framework is its ability to analytically solve for the hybrid Green's function $G(k_x, Y)$ for Quasi-1D system with horizontal corral and efficiently compute $G(X,Y)$ for 2D system in real space with arbitrary corral, allowing the definition of an effective topological Hamiltonian for a MSH chain with magnetic adatoms deposited on a superconducting substrate renormalized by the presence of quantum corral.
+The framework is built on analytical foundations, using Cauchy's residue theorem to bypass the computational bottlenecks of standard numerical integration. The core of this framework is its ability to analytically solve for the hybrid Green's function $G(k_x, Y)$ for Quasi-1D system with horizontal corral and efficiently compute $G(X,Y)$ for 2D system in real-space with arbitrary corral, allowing the definition of an effective topological Hamiltonian for a MSH chain with magnetic adatoms deposited on a superconducting substrate renormalized by the presence of quantum corral.
 
 ## Theoretical Foundation: The Rashba Superconducting Substrate
 
@@ -32,56 +32,57 @@ $$H_{\text{eff}}(k_x) = -[G_{\text{dressed}}(k_x,\omega=0)]^{-1} + J\tau_0\sigma
 ## 1. Analytical Kernel (`MSH_Analytical_Kernel.py`)
 This is the foundational math engine of the framework. It provides a suite of high-performance tools to solve the underlying complex analysis required for Green's Function construction.
 
-* **Characteristic Polynomial Solver:** Computes coefficients $c_n$ for the Hamiltonian's characteristic equation.
 * **Companion Matrix Pole-Finding:** Identifies complex poles $z_i$ via an eigenvalue approach, ensuring numerical stability compared to standard root-finding.
 * **Residue Components:** Analytically evaluates the denominator $P'(z)$ and the adjugate matrix $\text{Adj}(H(z))$ to bypass computationally expensive numerical integration.
 
 ---
 
 ## 2. Quasi-1D Module (`MSH_Quasi_1D.py`)
-This module utilizes the analytical kernel to solve for systems with longitudinal translational symmetry (infinite strips) and finite transverse width.
+Solves systems with longitudinal translational symmetry and finite transverse width.
 
 * **Hybrid Propagator Construction:** Directly computes the $(k_x, Y)$ Green's Function. It utilizes the Hermitian relation $G(k_x, -Y) = [G(k_x^*, Y)]^\dagger$ to resolve the propagator across the entire spatial domain while maintaining validity in the analytical $Y > 0$ half-plane.
 * **Two-Site T-Matrix Renormalization:** Implements a scattering formalism for corral boundaries (top and bottom). It features a **Dual-Regime Solver** that switches inversion methods based on the scattering potential strength ($V$) to avoid precision loss in the strong-coupling limit.
-* **Effective Hamiltonian Mapping:** Extracts the renormalized quasiparticle spectrum through self-energy mapping ($H_{\text{eff}} = -G^{-1} + J\tau_0\sigma_z$). This allows for the identification of topological phases and Majorana signatures using Pfaffians and winding number in the hybrid representation.
 
 ---
 
 ## 3. 2D Real-Space Module (`MSH_2D_Library.py`)
-Optimized for the simulation of massive and arbitrary corral geometries on substrate with periodic boundary condition.
+Optimized for the incorporation of massive and arbitrary corral geometries on substrate with periodic boundary condition.
 
-* **Symmetry-Folded Library Construction:** Utilizes the Hermitian relation of the Green's function to halve the integration search space. Unique spatial displacements are sorted and filtered to achieve $O(1)$ lookup times during global matrix assembly.
+* **Unique Vector Sorting:** Uses 'argsort' on rounded displacement keys to group pairs sharing the same lattice vector. This transforms the $O(N^2)$ scaling into $O(N_{\text{unique}})$.
 * **Eigen-Basis T-Matrix Solver:** Decomposes the scattering environment into decoupled chiral sectors. This enables analytical T-matrix generation via eigenvector scaling, bypassing the numerical instability of large-scale matrix inversions near resonance.
-* **Real-Space Topological Diagnostic:** Computes the localized effective Hamiltonian ($H_{\text{top}}$) of a "dressed" substrate, providing the backend for computation of local winding number density for topological characterization and Majorana Bound State (MBS) wavefunction visualization.
-
+  
 ---
+
 ## 📈 Results & Verification
 
-This framework is currently being utilized for a forthcoming publication on topological phase transitions in MSH systems. 
-
-**Verification and Numerical Integrity**
-The model is continuously validated through a dual-testing suite to ensure both mathematical precision and physical consistency.
-
 ### **1. Kernel Validation (`verify_hybrid_kernel.py`)**
-This test verifies the foundational **Analytical Residue Engine** against a brute-force numerical integration.
-* **Methodology**: We compare the hybrid Green’s function $G(k_x, Y)$ generated via Cauchy’s Residue Theorem against a high-resolution Simpson-rule integration of the momentum-space propagator $[- H_0(\mathbf{k})]^{-1}$.
-* **Accuracy**: The analytical approach maintains an error margin within $10^{-14}$, reaching the limit of double-precision complex math.
-* **Significance**: This ensures that the companion-matrix pole solver and adjugate evaluations are exact before any renormalization is applied.
-
-
+* **Methodology**: Comparison of the hybrid Green’s function $G(k_x, Y)$ (Residue Theorem) against high-resolution Simpson-rule integration.
+* **Accuracy**: Error margin within $10^{-14}$ (double-precision limit).
 
 ### **2. Topological Hamiltonian 1D Limit (`verify_Topo_Ham_1D.py`)**
-This test verifies the physical validity of the **T-matrix renormalization** and the **Quasi-1D geometry**.
-* **Methodology**: By setting the corral width to two lattice spacings ($W_c = \sqrt{3}$) and the scattering potential to the hard-wall limit ($V \to \infty$), we "pinch" the quasi-1D strip into a strictly 1D wire.
-* **Physical Identity**: The resulting numerical $4 \times 4$ matrix is compared directly against the analytical 1D Shiba-chain Hamiltonian. 
-* **Significance**: Passing this test confirms that the Dyson equation correctly integrates out the substrate degrees of freedom to recover known 1D topological physics.
+* **Methodology**: Pinching the quasi-1D strip into a 1D wire ($W_c = \sqrt{3}, V \to \infty$) and comparing the result to the analytical 1D Shiba-chain Hamiltonian.
+* **Significance**: Confirms the Dyson equation correctly recovers known 1D topological physics.
 
+### **3. Vectorized Integration Consistency (`verify_2D_integration.py`)**
+* **Methodology**: Numerical Fourier-transform integration of $G(k_x, Y)$ compared to the 2D library's vectorized residue summation.
+* **Accuracy**: $10^{-10}$ precision, verifying phase accumulation and decay coupling implementations.
+
+### **4. Unique Vector Sorting & Symmetry Folding (`verify_sorting_algorithm.py`)**
+* **Methodology**: Comparison of $G(\mathbf{R}_i, \mathbf{R}_j)$ assembled via optimized sorting vs. brute-force vectorized calculation.
+* **Performance**: Benchmarks on a 30-site cluster (900 pairs) demonstrate a **~13.7x speedup** (113 unique vectors vs 900 total).
+* **Accuracy**: Numerical error of $\approx 8.8 \times 10^{-17}$, proving the logic is mathematically lossless.
+
+### **5. T-Matrix Dyson Equation (`verify_T_matrix.py`)**
+* **Methodology**: Validation of the T-matrix against $T = V + V G_0 T$.
+* **Basis Integrity**: Success at $10^{-12}$ error proves the chiral sector split and basis reconstruction are exact.
+  
 ---
 
 ## 🛠 Performance & Numerical Optimizations
-* **Numba JIT Acceleration:** The entire pipeline is JIT-compiled to achieve C-level execution speeds for large-scale parameter sweeps.
-* **Memory Contiguity Management:** Explicit use of `np.ascontiguousarray` for all matrix inversions ensures the `@` (matmul) operator utilizes optimal BLAS/LAPACK pathways without memory-copy overhead.
-
+* **Numba JIT Acceleration:** Pipeline is JIT-compiled for C-level execution speeds.
+* **Algorithmic Scaling:** Sorting unique vectors ensures $O(N_{unique})$ real-space scaling for massive corral geometries.
+* **Memory Management:** Use of `np.ascontiguousarray` ensures optimal BLAS/LAPACK pathways for matrix inversions.
+  
 ---
 
 ## 📐 Mathematical Definition

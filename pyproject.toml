@@ -12,9 +12,9 @@ authors = [
     {name = "Ka Ho Wong"}
 ]
 dependencies = [
+    "numba",
     "numpy",
-    "scipy",
-    "matplotlib"
+    "scipy"
 ]
 
 [tool.setuptools]
